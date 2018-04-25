@@ -114,16 +114,16 @@ function! s:setup_highlighting() abort
   let s:diff_add_color = synIDattr(synIDtrans(hlID('DiffAdd')), 'reverse') ? 'fg' : 'bg'
   let s:diff_add = synIDattr(synIDtrans(hlID('DiffAdd')), s:diff_add_color)
 
-  let s:diff_delete_color = synIDattr(synIDtrans(hlID('DiffDelete')), 'reverse') ? 'fg' : 'bg'
-  let s:diff_delete = synIDattr(synIDtrans(hlID('DiffDelete')), s:diff_delete_color)
+  let s:diff_deleted_color = synIDattr(synIDtrans(hlID('DiffDelete')), 'reverse') ? 'fg' : 'bg'
+  let s:diff_deleted = synIDattr(synIDtrans(hlID('DiffDelete')), s:diff_deleted_color)
 
   silent exe 'hi default DirvishGitModified guifg='.s:diff_modified
   silent exe 'hi default DirvishGitStaged guifg='.s:diff_add
   silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE'
   silent exe 'hi default link DirvishGitUntrackedDir DirvishPathTail'
   silent exe 'hi default DirvishGitRenamed guifg='.s:diff_changed
-  silent exe 'hi default DirvishGitUnmerged guifg='.s:diff_delete
-  silent exe 'hi default DirvishGitDeleted guifg='.s:diff_delete
+  silent exe 'hi default DirvishGitUnmerged guifg='.s:diff_deleted
+  silent exe 'hi default DirvishGitDeleted guifg='.s:diff_deleted
   silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE'
 endfunction
 
