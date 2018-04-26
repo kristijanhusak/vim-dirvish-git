@@ -114,17 +114,10 @@ function! s:highlight_file(dir, file_name, us, them, is_directory) abort
 endfunction
 
 function! s:setup_highlighting() abort
-  let s:diff_modified_color = synIDattr(synIDtrans(hlID('DiffText')), 'reverse') ? 'fg' : 'bg'
-  let s:diff_modified = synIDattr(synIDtrans(hlID('DiffText')), s:diff_modified_color)
-
-  let s:diff_changed_color = synIDattr(synIDtrans(hlID('DiffChange')), 'reverse') ? 'fg' : 'bg'
-  let s:diff_changed = synIDattr(synIDtrans(hlID('DiffChange')), s:diff_changed_color)
-
-  let s:diff_add_color = synIDattr(synIDtrans(hlID('DiffAdd')), 'reverse') ? 'fg' : 'bg'
-  let s:diff_add = synIDattr(synIDtrans(hlID('DiffAdd')), s:diff_add_color)
-
-  let s:diff_deleted_color = synIDattr(synIDtrans(hlID('DiffDelete')), 'reverse') ? 'fg' : 'bg'
-  let s:diff_deleted = synIDattr(synIDtrans(hlID('DiffDelete')), s:diff_deleted_color)
+  let s:diff_modified = synIDattr(synIDtrans(hlID('DiffText')), 'fg')
+  let s:diff_changed = synIDattr(synIDtrans(hlID('DiffChange')), 'fg')
+  let s:diff_add = synIDattr(synIDtrans(hlID('DiffAdd')), 'fg')
+  let s:diff_deleted = synIDattr(synIDtrans(hlID('DiffDelete')), 'fg')
 
   silent exe 'hi default DirvishGitModified guifg='.s:diff_modified
   silent exe 'hi default DirvishGitStaged guifg='.s:diff_add
