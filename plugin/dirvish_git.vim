@@ -1,3 +1,8 @@
+if exists('g:loaded_dirvish_git')
+  finish
+endif
+let g:loaded_dirvish_git = 1
+
 if !exists('g:dirvish_git_indicators')
   let g:dirvish_git_indicators = {
   \ 'Modified'  : '✹',
@@ -65,7 +70,7 @@ function! dirvish_git#init() abort
   endfor
 endfunction
 
-function s:get_indicator_name(us, them) abort
+function! s:get_indicator_name(us, them) abort
   if a:us ==# '?' && a:them ==# '?'
     return 'Untracked'
   elseif a:us ==# ' ' && a:them ==# 'M'

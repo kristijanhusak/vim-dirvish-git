@@ -25,7 +25,6 @@ Plug 'kristijanhusak/vim-dirvish-git'
 
 Thats it!
 
-
 ## Customization
 These are default indicators used that can be overridden in vimrc:
 
