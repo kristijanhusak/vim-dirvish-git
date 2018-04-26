@@ -28,7 +28,12 @@ let s:dirvish_git_highlight_groups = {
 \ }
 
 function! dirvish_git#init() abort
-  let l:status = systemlist('git status --porcelain '.expand('%'))
+  let l:current_dir = expand('%')
+  for l:highlight_group in values(s:dirvish_git_highlight_groups)
+    silent! exe 'syntax clear '.l:highlight_group
+  endfor
+
+  let l:status = systemlist('git status --porcelain '.l:current_dir)
 
   if len(l:status) ==? 0 || (len(l:status) ==? 1 && l:status[0] =~? '^fatal')
     return 0
@@ -36,7 +41,6 @@ function! dirvish_git#init() abort
 
   call s:setup_highlighting()
   setlocal conceallevel=2
-  let l:current_dir = expand('%')
 
   for l:item in l:status
     let l:data = matchlist(l:item, '\(.\)\(.\)\s\(.*\)')
@@ -114,19 +118,20 @@ function! s:highlight_file(dir, file_name, us, them, is_directory) abort
 endfunction
 
 function! s:setup_highlighting() abort
-  let s:diff_modified = synIDattr(synIDtrans(hlID('DiffText')), 'fg')
-  let s:diff_changed = synIDattr(synIDtrans(hlID('DiffChange')), 'fg')
-  let s:diff_add = synIDattr(synIDtrans(hlID('DiffAdd')), 'fg')
-  let s:diff_deleted = synIDattr(synIDtrans(hlID('DiffDelete')), 'fg')
+  let l:diff_modified = synIDattr(synIDtrans(hlID('DiffText')), 'fg')
+  let l:diff_changed = synIDattr(synIDtrans(hlID('DiffChange')), 'fg')
+  let l:diff_add = synIDattr(synIDtrans(hlID('DiffAdd')), 'fg')
+  let l:diff_deleted = synIDattr(synIDtrans(hlID('DiffDelete')), 'fg')
+  let l:gui_or_cterm = match(l:diff_add, '^#.*$') > -1 ? 'guifg' : 'ctermfg'
 
-  silent exe 'hi default DirvishGitModified guifg='.s:diff_modified
-  silent exe 'hi default DirvishGitStaged guifg='.s:diff_add
-  silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE'
+  silent exe 'hi default DirvishGitModified '.l:gui_or_cterm.'='.l:diff_modified
+  silent exe 'hi default DirvishGitStaged '.l:gui_or_cterm.'='.l:diff_add
+  silent exe 'hi default DirvishGitRenamed '.l:gui_or_cterm.'='.l:diff_changed
+  silent exe 'hi default DirvishGitUnmerged '.l:gui_or_cterm.'='.l:diff_deleted
+  silent exe 'hi default DirvishGitDeleted '.l:gui_or_cterm.'='.l:diff_deleted
   silent exe 'hi default link DirvishGitUntrackedDir DirvishPathTail'
-  silent exe 'hi default DirvishGitRenamed guifg='.s:diff_changed
-  silent exe 'hi default DirvishGitUnmerged guifg='.s:diff_deleted
-  silent exe 'hi default DirvishGitDeleted guifg='.s:diff_deleted
-  silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE'
+  silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
+  silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
 endfunction
 
 augroup dirvish_git
