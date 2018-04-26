@@ -42,6 +42,10 @@ function! dirvish_git#init() abort
     let l:them = l:data[2]
     let l:file = l:data[3]
 
+    if index(argv(), l:file) > -1
+      continue
+    endif
+
     if isdirectory(l:file)
       let l:file = fnamemodify(l:file, ':p')
       let l:file_name = substitute(l:file, l:current_dir, '', 'g')
