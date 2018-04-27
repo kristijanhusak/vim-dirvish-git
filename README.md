@@ -25,6 +25,19 @@ Plug 'kristijanhusak/vim-dirvish-git'
 
 Thats it!
 
+## Mappings
+Following mappings are available by default:
+
+`]f` - jump to next "git" file
+`[f` - jump to previous "git" file
+
+To change mappings to use for example `<C-n>` for next and `<C-p>` for previous file add this to your vimrc:
+
+```vimL
+autocmd vimrc FileType dirvish nmap <silent><buffer><C-n> <Plug>(dirvish_git_next_file)
+autocmd vimrc FileType dirvish nmap <silent><buffer><C-p> <Plug>(dirvish_git_prev_file)
+```
+
 ## Customization
 These are default indicators used that can be overridden in vimrc:
 

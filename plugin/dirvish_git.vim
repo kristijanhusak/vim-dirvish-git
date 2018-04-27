@@ -27,8 +27,11 @@ let s:dirvish_git_highlight_groups = {
 \ 'Unknown'   : 'DirvishGitModified'
 \ }
 
+let s:git_files_line_number = []
+
 function! dirvish_git#init() abort
   let l:current_dir = expand('%')
+  let s:git_files_line_number = []
   for l:highlight_group in values(s:dirvish_git_highlight_groups)
     silent! exe 'syntax clear '.l:highlight_group
   endfor
@@ -40,6 +43,7 @@ function! dirvish_git#init() abort
   endif
 
   call s:setup_highlighting()
+  call s:set_mappings()
   setlocal conceallevel=2
 
   for l:item in l:status
@@ -55,12 +59,12 @@ function! dirvish_git#init() abort
       continue
     endif
 
+    let l:file = fnamemodify(l:file, ':p')
+
     if isdirectory(l:file)
-      let l:file = fnamemodify(l:file, ':p')
       let l:file_name = substitute(l:file, l:current_dir, '', 'g')
       call s:highlight_file(l:current_dir[:-2], l:file_name, l:us, l:them, v:true)
     else
-      let l:file = fnamemodify(l:file, ':p')
       let l:dir = fnamemodify(l:file, ':h')
       let l:file_name = fnamemodify(l:file, ':t')
       call s:highlight_file(l:dir, l:file_name, l:us, l:them, v:false)
@@ -112,6 +116,12 @@ function! s:highlight_file(dir, file_name, us, them, is_directory) abort
   let l:dir_rgx = escape(printf('%s\(/%s\)\@=', a:dir, a:file_name), './')
   let l:slash_rgx = escape(printf('\(%s\)\@<=/\(%s\)\@=', a:dir, a:file_name), './')
 
+  let l:line_number = search(escape(printf('%s/%s', a:dir, a:file_name), './'), 'n')
+
+  if l:line_number > 0
+    call add(s:git_files_line_number, l:line_number)
+  endif
+
   silent exe 'syn match DirvishGitDir "'.l:dir_rgx.'" conceal cchar='.s:get_indicator(a:us, a:them)
   silent exe 'syn match '.s:get_highlight_group(a:us, a:them, a:is_directory).' "'.l:file_rgx.'" contains=DirvishGitSlash'
   silent exe 'syn match DirvishGitSlash "'.l:slash_rgx.'" conceal cchar= contained'
@@ -133,6 +143,53 @@ function! s:setup_highlighting() abort
   silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
   silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
 endfunction
+
+function! dirvish_git#jump_to_next_file() abort
+  if len(s:git_files_line_number) <=? 0
+    return
+  endif
+
+  let l:current_line = line('.')
+  let s:git_files_line_number = sort(s:git_files_line_number, 'n')
+
+  for l:line in s:git_files_line_number
+    if l:line > l:current_line
+      return cursor(l:line, 0)
+    endif
+  endfor
+
+  return cursor(s:git_files_line_number[0], 0)
+endfunction
+
+function! dirvish_git#jump_to_prev_file() abort
+  if len(s:git_files_line_number) <=? 0
+    return
+  endif
+
+  let l:current_line = line('.')
+  let s:git_files_line_number = reverse(sort(s:git_files_line_number, 'n'))
+
+  for l:line in s:git_files_line_number
+    if l:line < l:current_line
+      return cursor(l:line, 0)
+    endif
+  endfor
+
+  return cursor(s:git_files_line_number[0], 0)
+endfunction
+
+function! s:set_mappings() abort
+if !hasmapto('<Plug>(dirvish_git_prev_file)') && maparg('[f', 'n') ==? ''
+  silent! nmap <buffer> <unique> <silent> [f <Plug>(dirvish_git_prev_file)
+endif
+
+if !hasmapto('<Plug>(dirvish_git_next_file)') && maparg(']f', 'n') ==? ''
+  silent! nmap <buffer> <unique> <silent> ]f <Plug>(dirvish_git_next_file)
+endif
+endfunction
+
+nnoremap <Plug>(dirvish_git_next_file) :<C-u>call dirvish_git#jump_to_next_file()<CR>
+nnoremap <Plug>(dirvish_git_prev_file) :<C-u>call dirvish_git#jump_to_prev_file()<CR>
 
 augroup dirvish_git
   autocmd!
