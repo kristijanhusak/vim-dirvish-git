@@ -124,17 +124,15 @@ function! s:highlight_file(dir, file_name, us, them, is_directory) abort
 endfunction
 
 function! s:setup_highlighting() abort
-  let l:diff_modified = synIDattr(synIDtrans(hlID('DiffText')), 'fg')
-  let l:diff_changed = synIDattr(synIDtrans(hlID('DiffChange')), 'fg')
-  let l:diff_add = synIDattr(synIDtrans(hlID('DiffAdd')), 'fg')
-  let l:diff_deleted = synIDattr(synIDtrans(hlID('DiffDelete')), 'fg')
-  let l:gui_or_cterm = match(l:diff_add, '^#.*$') > -1 ? 'guifg' : 'ctermfg'
+  let l:modified = 'guifg=#EBCB8B ctermfg=3'
+  let l:added = 'guifg=#A3BE8C ctermfg=2'
+  let l:deleted = 'guifg=#BF616A ctermfg=1'
 
-  silent exe 'hi default DirvishGitModified '.l:gui_or_cterm.'='.l:diff_modified
-  silent exe 'hi default DirvishGitStaged '.l:gui_or_cterm.'='.l:diff_add
-  silent exe 'hi default DirvishGitRenamed '.l:gui_or_cterm.'='.l:diff_changed
-  silent exe 'hi default DirvishGitUnmerged '.l:gui_or_cterm.'='.l:diff_deleted
-  silent exe 'hi default DirvishGitDeleted '.l:gui_or_cterm.'='.l:diff_deleted
+  silent exe 'hi default DirvishGitModified '.l:modified
+  silent exe 'hi default DirvishGitStaged '.l:added
+  silent exe 'hi default DirvishGitRenamed '.l:modified
+  silent exe 'hi default DirvishGitUnmerged '.l:deleted
+  silent exe 'hi default DirvishGitDeleted '.l:deleted
   silent exe 'hi default link DirvishGitUntrackedDir DirvishPathTail'
   silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
   silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'

@@ -56,23 +56,20 @@ These are default indicators used that can be overridden in vimrc:
 
 To change font color you can update any of these highlighting groups.
 
-Defaults are taken from your current colorscheme `Diff*` highlights.
-
 Here's short example how it's set up by default:
 ```vimL
-  let l:diff_add = '#00FF00' " Taken from DiffAdd highlight group
-  let l:diff_changed = '#0000FF' " Taken from DiffChange highlight group
-  let l:diff_modified = '#F0000F' " Taken from DiffText highlight group
-  let l:diff_deleted = '#FF0000' " Taken from DiffDelete highlight group
+  let l:modified = 'guifg=#EBCB8B ctermfg=3'
+  let l:added = 'guifg=#A3BE8C ctermfg=2'
+  let l:deleted = 'guifg=#BF616A ctermfg=1'
 
-  silent exe 'hi default DirvishGitModified guifg='.l:diff_modified
-  silent exe 'hi default DirvishGitStaged guifg='.l:diff_add
-  silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE'
-  silent exe 'hi default DirvishGitRenamed guifg='.l:diff_changed
-  silent exe 'hi default DirvishGitUnmerged guifg='.l:diff_deleted
-  silent exe 'hi default DirvishGitDeleted guifg='.l:diff_deleted
-  silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE'
-  "Untracked dir linked to Dirvish default dir color
+  silent exe 'hi default DirvishGitModified '.l:modified
+  silent exe 'hi default DirvishGitStaged '.l:added
+  silent exe 'hi default DirvishGitRenamed '.l:modified
+  silent exe 'hi default DirvishGitUnmerged '.l:deleted
+  silent exe 'hi default DirvishGitDeleted '.l:deleted
+  silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
+  silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
+  " Untracked dir linked to Dirvish default dir color
   silent exe 'hi default link DirvishGitUntrackedDir DirvishPathTail'
 ```
 
