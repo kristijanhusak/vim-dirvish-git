@@ -173,6 +173,12 @@ function! dirvish_git#jump_to_prev_file() abort
   return cursor(l:git_files_line_number[0], 0)
 endfunction
 
+function! dirvish_git#reload() abort
+  if &filetype ==? 'dirvish' && len(s:git_files) > 0
+    Dirvish %
+  endif
+endfunction
+
 function! s:set_mappings() abort
 if !hasmapto('<Plug>(dirvish_git_prev_file)') && maparg('[f', 'n') ==? ''
   silent! nmap <buffer> <unique> <silent> [f <Plug>(dirvish_git_prev_file)
@@ -189,5 +195,6 @@ nnoremap <Plug>(dirvish_git_prev_file) :<C-u>call dirvish_git#jump_to_prev_file(
 augroup dirvish_git
   autocmd!
   autocmd FileType dirvish call dirvish_git#init()
+  autocmd BufEnter * call dirvish_git#reload()
 augroup END
 
