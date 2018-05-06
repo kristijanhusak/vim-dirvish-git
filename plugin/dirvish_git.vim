@@ -27,6 +27,7 @@ let s:dirvish_git_highlight_groups = {
 \ 'Unknown'   : 'DirvishGitModified'
 \ }
 
+let s:sep = exists('+shellslash') && !&shellslash ? '\' : '/'
 let s:git_files = {}
 
 function! dirvish_git#init() abort
@@ -55,18 +56,18 @@ function! dirvish_git#init() abort
     let l:them = l:data[2]
     let l:file = l:data[3]
 
-    if index(argv(), l:file) > -1
+    if s:is_in_arglist(l:file)
       continue
     endif
 
     let l:file = fnamemodify(l:file, ':p')
-    let l:file = matchstr(l:file, escape(l:current_dir.'[^/]*/\?', './'))
+    let l:file = matchstr(l:file, escape(l:current_dir.'[^'.s:sep.']*'.s:sep.'\?', '.'.s:sep))
 
     if index(values(s:git_files), l:file) > -1
       continue
     endif
 
-    let l:line_number = search(escape(l:file, './'), 'n')
+    let l:line_number = search(escape(l:file, '.'.s:sep), 'n')
     let s:git_files[l:line_number] = l:file
 
     if isdirectory(l:file)
@@ -114,9 +115,9 @@ function! s:get_highlight_group(us, them, is_directory) abort
 endfunction
 
 function! s:highlight_file(dir, file_name, us, them, is_directory) abort
-  let l:file_rgx = escape(printf('\(%s\)\@<=/%s', a:dir, a:file_name), './')
-  let l:dir_rgx = escape(printf('%s\(/%s\)\@=', a:dir, a:file_name), './')
-  let l:slash_rgx = escape(printf('\(%s\)\@<=/\(%s\)\@=', a:dir, a:file_name), './')
+  let l:file_rgx = escape(printf('\(%s\)\@<=%s%s', a:dir, s:sep, a:file_name), './')
+  let l:dir_rgx = escape(printf('%s\(%s%s\)\@=', a:dir, s:sep, a:file_name), './')
+  let l:slash_rgx = escape(printf('\(%s\)\@<=%s\(%s\)\@=', a:dir, s:sep, a:file_name), './')
 
   silent exe 'syn match DirvishGitDir "'.l:dir_rgx.'" conceal cchar='.s:get_indicator(a:us, a:them)
   silent exe 'syn match '.s:get_highlight_group(a:us, a:them, a:is_directory).' "'.l:file_rgx.'" contains=DirvishGitSlash'
@@ -138,6 +139,20 @@ function! s:setup_highlighting() abort
   silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
 endfunction
 
+function s:is_in_arglist(file) abort
+  let l:file = fnamemodify(a:file, ':p')
+  let l:cwd = printf('%s%s', getcwd(), s:sep)
+  for l:arg in argv()
+    if l:arg ==# l:cwd
+      continue
+    endif
+    if l:file =~? l:arg
+      return 1
+    endif
+  endfor
+  return 0
+endfunction
+
 function! dirvish_git#jump_to_next_file() abort
   if len(s:git_files) <=? 0
     return
@@ -145,7 +160,6 @@ function! dirvish_git#jump_to_next_file() abort
 
   let l:current_line = line('.')
   let l:git_files_line_number = sort(keys(s:git_files), 'N')
-  echo l:git_files_line_number
 
   for l:line in l:git_files_line_number
     if l:line > l:current_line
@@ -175,7 +189,7 @@ endfunction
 
 function! dirvish_git#reload() abort
   if &filetype ==? 'dirvish' && len(s:git_files) > 0
-    Dirvish %
+    call feedkeys('R')
   endif
 endfunction
 
