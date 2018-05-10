@@ -125,9 +125,9 @@ function! s:highlight_file(dir, file_name, us, them, is_directory) abort
 endfunction
 
 function! s:setup_highlighting() abort
-  let l:modified = 'guifg=#EBCB8B ctermfg=3'
-  let l:added = 'guifg=#A3BE8C ctermfg=2'
-  let l:deleted = 'guifg=#BF616A ctermfg=1'
+  let l:modified = 'guifg=#fabd2f ctermfg=214'
+  let l:added = 'guifg=#b8bb26 ctermfg=142'
+  let l:deleted = 'guifg=#fb4934 ctermfg=167'
 
   silent exe 'hi default DirvishGitModified '.l:modified
   silent exe 'hi default DirvishGitStaged '.l:added
