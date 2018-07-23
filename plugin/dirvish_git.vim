@@ -189,7 +189,7 @@ endfunction
 
 function! dirvish_git#reload() abort
   if &filetype ==? 'dirvish' && len(s:git_files) > 0
-    call feedkeys('R')
+    Dirvish %
   endif
 endfunction
 
