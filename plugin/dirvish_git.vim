@@ -37,9 +37,9 @@ function! dirvish_git#init() abort
     silent! exe 'syntax clear '.l:highlight_group
   endfor
 
-  let l:status = systemlist('git status --porcelain '.l:current_dir)
+  let l:status = s:get_status_list(l:current_dir)
 
-  if len(l:status) ==? 0 || (len(l:status) ==? 1 && l:status[0] =~? '^fatal')
+  if empty(l:status)
     return 0
   endif
 
@@ -79,6 +79,17 @@ function! dirvish_git#init() abort
       call s:highlight_file(l:dir, l:file_name, l:us, l:them, v:false)
     endif
   endfor
+endfunction
+
+function! s:get_status_list(current_dir) abort
+  let l:status = systemlist('git status --porcelain '.a:current_dir)
+
+  if len(l:status) ==? 0 || (len(l:status) ==? 1 && l:status[0] =~? '^fatal')
+    return []
+  endif
+
+  "Put unmerged first to get proper status on directories
+  return sort(l:status, { first, second -> (first =~? '^U' || first =~? '^.U') ? -1 : 1 })
 endfunction
 
 function! s:get_indicator_name(us, them) abort
