@@ -31,6 +31,13 @@ let s:sep = exists('+shellslash') && !&shellslash ? '\' : '/'
 let s:git_files = {}
 
 function! dirvish_git#init() abort
+  if get(g:, 'dirvish_relative_paths', 0)
+    echohl Error
+    echo 'Dirvish Git plugin does not support relative paths (g:dirvish_relative_paths = 1).'
+    echohl None
+    return 0
+  endif
+
   let l:current_dir = expand('%')
   let s:git_files = {}
   for l:highlight_group in values(s:dirvish_git_highlight_groups)
