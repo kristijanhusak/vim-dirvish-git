@@ -211,7 +211,7 @@ function! dirvish_git#jump_to_prev_file() abort
 endfunction
 
 function! dirvish_git#reload() abort
-  if &filetype ==? 'dirvish' && len(s:git_files) > 0
+  if &filetype ==? 'dirvish'
     Dirvish %
   endif
 endfunction
@@ -232,6 +232,6 @@ nnoremap <Plug>(dirvish_git_prev_file) :<C-u>call dirvish_git#jump_to_prev_file(
 augroup dirvish_git
   autocmd!
   autocmd FileType dirvish call dirvish_git#init()
-  autocmd BufEnter * call dirvish_git#reload()
+  autocmd BufEnter,FocusGained * call dirvish_git#reload()
 augroup END
 
