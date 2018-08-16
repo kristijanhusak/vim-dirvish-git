@@ -39,6 +39,12 @@ autocmd vimrc FileType dirvish nmap <silent><buffer><C-p> <Plug>(dirvish_git_pre
 ```
 
 ## Customization
+Ignored files are not marked by default. If you want them to be marked, add this to your vimrc:
+
+```vimL
+let g:dirvish_git_show_ignored = 1
+```
+
 These are default indicators used that can be overridden in vimrc:
 
 ```vimL
@@ -48,7 +54,6 @@ These are default indicators used that can be overridden in vimrc:
   \ 'Untracked' : '✭',
   \ 'Renamed'   : '➜',
   \ 'Unmerged'  : '═',
-  \ 'Deleted'   : '✖',
   \ 'Ignored'   : '☒',
   \ 'Unknown'   : '?'
   \ }
@@ -60,13 +65,12 @@ Here's short example how it's set up by default:
 ```vimL
   let l:modified = 'guifg=#EBCB8B ctermfg=3'
   let l:added = 'guifg=#A3BE8C ctermfg=2'
-  let l:deleted = 'guifg=#BF616A ctermfg=1'
+  let l:unmerged = 'guifg=#BF616A ctermfg=1'
 
   silent exe 'hi default DirvishGitModified '.l:modified
   silent exe 'hi default DirvishGitStaged '.l:added
   silent exe 'hi default DirvishGitRenamed '.l:modified
-  silent exe 'hi default DirvishGitUnmerged '.l:deleted
-  silent exe 'hi default DirvishGitDeleted '.l:deleted
+  silent exe 'hi default DirvishGitUnmerged '.l:unmerged
   silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
   silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
   " Untracked dir linked to Dirvish default dir color

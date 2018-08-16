@@ -3,6 +3,8 @@ if exists('g:loaded_dirvish_git')
 endif
 let g:loaded_dirvish_git = 1
 
+let g:dirvish_git_show_ignored = get(g:, 'dirvish_git_show_ignored', 0)
+
 if !exists('g:dirvish_git_indicators')
   let g:dirvish_git_indicators = {
   \ 'Modified'  : '✹',
@@ -10,7 +12,6 @@ if !exists('g:dirvish_git_indicators')
   \ 'Untracked' : '✭',
   \ 'Renamed'   : '➜',
   \ 'Unmerged'  : '═',
-  \ 'Deleted'   : '✖',
   \ 'Ignored'   : '☒',
   \ 'Unknown'   : '?'
   \ }
@@ -22,7 +23,6 @@ let s:dirvish_git_highlight_groups = {
 \ 'Untracked' : 'DirvishGitUntracked',
 \ 'Renamed'   : 'DirvishGitRenamed',
 \ 'Unmerged'  : 'DirvishGitUnmerged',
-\ 'Deleted'   : 'DirvishGitDeleted',
 \ 'Ignored'   : 'DirvishGitIgnored',
 \ 'Unknown'   : 'DirvishGitModified'
 \ }
@@ -63,6 +63,12 @@ function! dirvish_git#init() abort
     let l:them = l:data[2]
     let l:file = l:data[3]
 
+    " Rename status returns both old and new filename "old_name.ext -> new_name.ext
+    " but only new name is needed here
+    if l:us ==# 'R'
+      let l:file = get(split(l:file, ' -> '), 1, l:file)
+    endif
+
     if s:is_in_arglist(l:file)
       continue
     endif
@@ -89,7 +95,8 @@ function! dirvish_git#init() abort
 endfunction
 
 function! s:get_status_list(current_dir) abort
-  let l:status = systemlist('git status --porcelain '.a:current_dir)
+  let l:ignored = g:dirvish_git_show_ignored ? '--ignored' : ''
+  let l:status = systemlist(printf('git status --porcelain %s %s', l:ignored, a:current_dir))
 
   if len(l:status) ==? 0 || (len(l:status) ==? 1 && l:status[0] =~? '^fatal')
     return []
@@ -110,8 +117,6 @@ function! s:get_indicator_name(us, them) abort
     return 'Renamed'
   elseif a:us ==# 'U' || a:them ==# 'U' || a:us ==# 'A' && a:them ==# 'A' || a:us ==# 'D' && a:them ==# 'D'
     return 'Unmerged'
-  elseif a:them ==# 'D'
-    return 'Deleted'
   elseif a:us ==# '!'
     return 'Ignored'
   else
@@ -145,13 +150,12 @@ endfunction
 function! s:setup_highlighting() abort
   let l:modified = 'guifg=#fabd2f ctermfg=214'
   let l:added = 'guifg=#b8bb26 ctermfg=142'
-  let l:deleted = 'guifg=#fb4934 ctermfg=167'
+  let l:unmerged = 'guifg=#fb4934 ctermfg=167'
 
   silent exe 'hi default DirvishGitModified '.l:modified
   silent exe 'hi default DirvishGitStaged '.l:added
   silent exe 'hi default DirvishGitRenamed '.l:modified
-  silent exe 'hi default DirvishGitUnmerged '.l:deleted
-  silent exe 'hi default DirvishGitDeleted '.l:deleted
+  silent exe 'hi default DirvishGitUnmerged '.l:unmerged
   silent exe 'hi default link DirvishGitUntrackedDir DirvishPathTail'
   silent exe 'hi default DirvishGitIgnored guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
   silent exe 'hi default DirvishGitUntracked guifg=NONE guibg=NONE gui=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
