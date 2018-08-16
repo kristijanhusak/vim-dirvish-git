@@ -28,6 +28,7 @@ let s:dirvish_git_highlight_groups = {
 \ }
 
 let s:sep = exists('+shellslash') && !&shellslash ? '\' : '/'
+let s:escape_chars = '.#~'.s:sep
 let s:git_files = {}
 
 function! dirvish_git#init() abort
@@ -74,13 +75,13 @@ function! dirvish_git#init() abort
     endif
 
     let l:file = fnamemodify(l:file, ':p')
-    let l:file = matchstr(l:file, escape(l:current_dir.'[^'.s:sep.']*'.s:sep.'\?', '.'.s:sep))
+    let l:file = matchstr(l:file, escape(l:current_dir.'[^'.s:sep.']*'.s:sep.'\?', s:escape_chars))
 
     if index(values(s:git_files), l:file) > -1
       continue
     endif
 
-    let l:line_number = search(escape(l:file, '.'.s:sep), 'n')
+    let l:line_number = search(escape(l:file, s:escape_chars), 'n')
     let s:git_files[l:line_number] = l:file
 
     if isdirectory(l:file)
@@ -138,9 +139,9 @@ function! s:get_highlight_group(us, them, is_directory) abort
 endfunction
 
 function! s:highlight_file(dir, file_name, us, them, is_directory) abort
-  let l:file_rgx = escape(printf('\(%s\)\@<=%s%s', a:dir, s:sep, a:file_name), './')
-  let l:dir_rgx = escape(printf('%s\(%s%s\)\@=', a:dir, s:sep, a:file_name), './')
-  let l:slash_rgx = escape(printf('\(%s\)\@<=%s\(%s\)\@=', a:dir, s:sep, a:file_name), './')
+  let l:file_rgx = escape(printf('\(%s\)\@<=%s%s', a:dir, s:sep, a:file_name), s:escape_chars)
+  let l:dir_rgx = escape(printf('%s\(%s%s\)\@=', a:dir, s:sep, a:file_name), s:escape_chars)
+  let l:slash_rgx = escape(printf('\(%s\)\@<=%s\(%s\)\@=', a:dir, s:sep, a:file_name), s:escape_chars)
 
   silent exe 'syn match DirvishGitDir "'.l:dir_rgx.'" conceal cchar='.s:get_indicator(a:us, a:them)
   silent exe 'syn match '.s:get_highlight_group(a:us, a:them, a:is_directory).' "'.l:file_rgx.'" contains=DirvishGitSlash'
