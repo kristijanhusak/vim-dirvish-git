@@ -93,6 +93,10 @@ function! dirvish_git#init() abort
       call s:highlight_file(l:dir, l:file_name, l:us, l:them, v:false)
     endif
   endfor
+
+  "Set argument list highlight again to override git highlights
+  let l:pat = join(map(argv(), 'escape(fnamemodify(v:val[-1:]==#s:sep?v:val[:-2]:v:val, ":t"), "*.^$~\\")'), '\|')
+  exe 'syntax match DirvishArg /\'.s:sep.'\@<=\%\('.l:pat.'\)\'.s:sep.'\?$/'
 endfunction
 
 function! s:get_status_list(current_dir) abort
@@ -224,6 +228,13 @@ endif
 if !hasmapto('<Plug>(dirvish_git_next_file)') && maparg(']f', 'n') ==? ''
   silent! nmap <buffer> <unique> <silent> ]f <Plug>(dirvish_git_next_file)
 endif
+
+" Reload dirvish after adding file to arglist in order to update syntax
+if maparg('X', 'n') ==? '<Plug>(dirvish_arg)'
+  nmap <buffer><silent><expr> X "\<Plug>(dirvish_arg):<C-u>call dirvish_git#reload()<CR>"
+  xmap <buffer><silent><expr> X "\<Plug>(dirvish_arg):<C-u>call dirvish_git#reload()<CR>"
+endif
+
 endfunction
 
 nnoremap <Plug>(dirvish_git_next_file) :<C-u>call dirvish_git#jump_to_next_file()<CR>
