@@ -86,5 +86,12 @@ colorscheme gruvbox
 hi DirvishGitModified guifg=#0000FF
 ```
 
+Icons are shown by default, to hide the icons and only show the Git status with 
+colors, add this to your vimrc:
+
+```vimL
+let g:dirvish_git_show_icons = 0
+```
+
 ## Thanks to:
 * [nerdtree-git-plugin](https://github.com/Xuyuanp/nerdtree-git-plugin)

@@ -4,6 +4,7 @@ endif
 let g:loaded_dirvish_git = 1
 
 let g:dirvish_git_show_ignored = get(g:, 'dirvish_git_show_ignored', 0)
+let g:dirvish_git_show_icons = get(g:, 'dirvish_git_show_icons', 1)
 
 if !exists('g:dirvish_git_indicators')
   let g:dirvish_git_indicators = {
@@ -147,9 +148,15 @@ function! s:highlight_file(dir, file_name, us, them, is_directory) abort
   let l:dir_rgx = escape(printf('%s\(%s%s\)\@=', a:dir, s:sep, a:file_name), s:escape_chars)
   let l:slash_rgx = escape(printf('\(%s\)\@<=%s\(%s\)\@=', a:dir, s:sep, a:file_name), s:escape_chars)
 
-  silent exe 'syn match DirvishGitDir "'.l:dir_rgx.'" conceal cchar='.s:get_indicator(a:us, a:them)
+  " Check if icons should be shown
+  let l:conceal_char = g:dirvish_git_show_icons
+        \ ? ' cchar=' .. s:get_indicator(a:us, a:them)
+        \ : ''
+  let l:conceal_last_folder_char = g:dirvish_git_show_icons ? ' cchar= ' : ''
+
+  silent exe 'syn match DirvishGitDir "'.l:dir_rgx.'" conceal' .. l:conceal_char
   silent exe 'syn match '.s:get_highlight_group(a:us, a:them, a:is_directory).' "'.l:file_rgx.'" contains=DirvishGitSlash'
-  silent exe 'syn match DirvishGitSlash "'.l:slash_rgx.'" conceal cchar= contained'
+  silent exe 'syn match DirvishGitSlash "'.l:slash_rgx.'" conceal contained' .. l:conceal_last_folder_char
 endfunction
 
 function! s:setup_highlighting() abort
