@@ -87,17 +87,25 @@ function! dirvish_git#init() abort
 
     if isdirectory(l:file)
       let l:file_name = substitute(l:file, l:current_dir, '', 'g')
-      call s:highlight_file(l:current_dir[:-2], l:file_name, l:us, l:them, v:true)
+      call s:highlight_file(l:current_dir[:-2], l:file_name, l:us, l:them, 1)
     else
       let l:dir = fnamemodify(l:file, ':h')
       let l:file_name = fnamemodify(l:file, ':t')
-      call s:highlight_file(l:dir, l:file_name, l:us, l:them, v:false)
+      call s:highlight_file(l:dir, l:file_name, l:us, l:them, 0)
     endif
   endfor
 
   "Set argument list highlight again to override git highlights
   let l:pat = join(map(argv(), 'escape(fnamemodify(v:val[-1:]==#s:sep?v:val[:-2]:v:val, ":t"), "*.^$~\\")'), '\|')
   exe 'syntax match DirvishArg /\'.s:sep.'\@<=\%\('.l:pat.'\)\'.s:sep.'\?$/'
+endfunction
+
+" move all strings beginning with U or .U to the beginning of the list
+function! s:unmerged_status_comparator(a, b) abort
+  if (a:a =~? '^U') || (a:a =~? '^.U')
+    return -1
+  endif
+  return 1
 endfunction
 
 function! s:get_status_list(current_dir) abort
@@ -109,7 +117,7 @@ function! s:get_status_list(current_dir) abort
   endif
 
   "Put unmerged first to get proper status on directories
-  return sort(l:status, { first, second -> (first =~? '^U' || first =~? '^.U') ? -1 : 1 })
+  return sort(l:status, "s:unmerged_status_comparator")
 endfunction
 
 function! s:get_indicator_name(us, them) abort
@@ -149,14 +157,12 @@ function! s:highlight_file(dir, file_name, us, them, is_directory) abort
   let l:slash_rgx = escape(printf('\(%s\)\@<=%s\(%s\)\@=', a:dir, s:sep, a:file_name), s:escape_chars)
 
   " Check if icons should be shown
-  let l:conceal_char = g:dirvish_git_show_icons
-        \ ? ' cchar=' .. s:get_indicator(a:us, a:them)
-        \ : ''
+  let l:conceal_char = g:dirvish_git_show_icons ? (' cchar=' . s:get_indicator(a:us, a:them)) : ''
   let l:conceal_last_folder_char = g:dirvish_git_show_icons ? ' cchar= ' : ''
 
-  silent exe 'syn match DirvishGitDir "'.l:dir_rgx.'" conceal' .. l:conceal_char
+  silent exe 'syn match DirvishGitDir "'.l:dir_rgx.'" conceal' . l:conceal_char
   silent exe 'syn match '.s:get_highlight_group(a:us, a:them, a:is_directory).' "'.l:file_rgx.'" contains=DirvishGitSlash'
-  silent exe 'syn match DirvishGitSlash "'.l:slash_rgx.'" conceal contained' .. l:conceal_last_folder_char
+  silent exe 'syn match DirvishGitSlash "'.l:slash_rgx.'" conceal contained' . l:conceal_last_folder_char
 endfunction
 
 function! s:setup_highlighting() abort
