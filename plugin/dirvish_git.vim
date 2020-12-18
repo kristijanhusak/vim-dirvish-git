@@ -64,6 +64,9 @@ function! dirvish_git#init() abort
     let l:us = l:data[1]
     let l:them = l:data[2]
     let l:file = l:data[3]
+    if stridx(l:file, ' ') > -1 && l:file[0] ==? '"'
+      let l:file = trim(l:file, '"')
+    endif
 
     " Rename status returns both old and new filename "old_name.ext -> new_name.ext
     " but only new name is needed here
