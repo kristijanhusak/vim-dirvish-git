@@ -79,6 +79,20 @@ function! dirvish_git#init() abort
     endif
 
     let l:file = fnamemodify(l:file, ':p')
+
+    if l:us ==# '!'
+      " Handle ignored files and directories. If there is an ignored file in a 
+      " sub-folder, then the whole folder should not be marked as ignored.
+
+      " Get the parent folder relative path of the ignored file/folder
+      let l:folder_of_file = fnamemodify(l:file, ':s?' .. expand('%') .. '??:s?/$??:h')
+      if l:folder_of_file !=# '.'
+        " If the ignored file/folder is NOT in the currently open directory, 
+        " then it should NOT be shown as ignored
+        continue
+      endif
+    endif
+
     let l:file = matchstr(l:file, escape(l:current_dir.'[^'.s:sep.']*'.s:sep.'\?', s:escape_chars))
 
     if index(values(s:git_files), l:file) > -1
