@@ -46,6 +46,12 @@ function! dirvish_git#init() abort
     silent! exe 'syntax clear '.l:highlight_group
   endfor
 
+  let l:git_root = s:get_git_root(l:current_dir)
+
+  if empty(l:git_root)
+    return 0
+  endif
+
   let l:status = s:get_status_list(l:current_dir)
 
   if empty(l:status)
@@ -74,11 +80,12 @@ function! dirvish_git#init() abort
       let l:file = get(split(l:file, ' -> '), 1, l:file)
     endif
 
+    let l:file = fnamemodify(l:git_root.s:sep.l:file, ':p')
+
     if s:is_in_arglist(l:file)
       continue
     endif
 
-    let l:file = fnamemodify(l:file, ':p')
     let l:file = matchstr(l:file, escape(l:current_dir.'[^'.s:sep.']*'.s:sep.'\?', s:escape_chars))
 
     if index(values(s:git_files), l:file) > -1
@@ -109,6 +116,16 @@ function! s:unmerged_status_comparator(a, b) abort
     return -1
   endif
   return 1
+endfunction
+
+function! s:get_git_root(current_dir) abort
+  let l:git_root = systemlist(printf('git -C %s rev-parse --show-toplevel', a:current_dir))
+
+  if len(l:git_root) == 0 || (len(l:git_root) == 1 && l:git_root[0] =~? '^fatal')
+    return ''
+  endif
+
+  return l:git_root[0]
 endfunction
 
 function! s:get_status_list(current_dir) abort
